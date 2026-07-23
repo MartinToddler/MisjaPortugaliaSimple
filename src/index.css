@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@utility pb-safe {
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + --spacing(2));
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  @apply bg-amber-50 text-slate-800 antialiased;
+}

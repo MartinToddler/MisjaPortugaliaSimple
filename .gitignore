@@ -1,0 +1,16 @@
+# zależności i build
+node_modules/
+dist/
+dev-dist/
+
+# środowisko (klucze Supabase trzymamy lokalnie, nigdy w repo)
+.env
+.env.local
+.env.*.local
+
+# systemowe
+.DS_Store
+*.log
+
+# artefakty TypeScript
+tsconfig.tsbuildinfo
