@@ -1,0 +1,742 @@
+<meta charset="utf-8">
+<title>Misja Portugalia — demo</title>
+<style>
+  :root{
+    --page:#f3ead3;
+    --bg:#fffbeb;
+    --surface:#ffffff;
+    --surface-2:#eff6ff;
+    --ink:#1e293b;
+    --muted:#64748b;
+    --line:#dbeafe;
+    --primary:#1d4ed8;
+    --primary-press:#1e40af;
+    --primary-ink:#ffffff;
+    --primary-soft:#dbeafe;
+    --accent:#d97706;
+    --accent-soft:#fef3c7;
+    --good:#15803d;
+    --good-strong:#16a34a;
+    --good-soft:#dcfce7;
+    --warn:#b45309;
+    --warn-soft:#fef3c7;
+    --bad:#dc2626;
+    --bad-soft:#fee2e2;
+    --shadow:0 1px 2px rgba(30,58,138,.06),0 8px 24px rgba(30,58,138,.07);
+    --frame-shadow:0 24px 60px rgba(30,41,59,.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page:#080d18;
+      --bg:#0f1626;
+      --surface:#1a2336;
+      --surface-2:#20304d;
+      --ink:#e7ecf6;
+      --muted:#93a1b8;
+      --line:#2a3a5c;
+      --primary:#2563eb;
+      --primary-press:#1d4ed8;
+      --primary-ink:#ffffff;
+      --primary-soft:#1e3a8a;
+      --accent:#fbbf24;
+      --accent-soft:#3a2f10;
+      --good:#4ade80;
+      --good-strong:#16a34a;
+      --good-soft:#12331f;
+      --warn:#fbbf24;
+      --warn-soft:#3a2c10;
+      --bad:#f87171;
+      --bad-soft:#3d1516;
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+      --frame-shadow:0 24px 60px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --page:#f3ead3; --bg:#fffbeb; --surface:#ffffff; --surface-2:#eff6ff; --ink:#1e293b;
+    --muted:#64748b; --line:#dbeafe; --primary:#1d4ed8; --primary-press:#1e40af;
+    --primary-ink:#ffffff; --primary-soft:#dbeafe; --accent:#d97706; --accent-soft:#fef3c7;
+    --good:#15803d; --good-strong:#16a34a; --good-soft:#dcfce7; --warn:#b45309; --warn-soft:#fef3c7;
+    --bad:#dc2626; --bad-soft:#fee2e2;
+    --shadow:0 1px 2px rgba(30,58,138,.06),0 8px 24px rgba(30,58,138,.07);
+    --frame-shadow:0 24px 60px rgba(30,41,59,.25);
+  }
+  :root[data-theme="dark"]{
+    --page:#080d18; --bg:#0f1626; --surface:#1a2336; --surface-2:#20304d; --ink:#e7ecf6;
+    --muted:#93a1b8; --line:#2a3a5c; --primary:#2563eb; --primary-press:#1d4ed8;
+    --primary-ink:#ffffff; --primary-soft:#1e3a8a; --accent:#fbbf24; --accent-soft:#3a2f10;
+    --good:#4ade80; --good-strong:#16a34a; --good-soft:#12331f; --warn:#fbbf24; --warn-soft:#3a2c10;
+    --bad:#f87171; --bad-soft:#3d1516;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+    --frame-shadow:0 24px 60px rgba(0,0,0,.6);
+  }
+
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    min-height:100dvh;display:flex;flex-direction:column;align-items:center;
+    background:var(--page);color:var(--ink);
+    font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+    padding:16px 16px 24px;gap:10px;
+  }
+  button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+  input,select,textarea{font:inherit;color:var(--ink)}
+  :where(button,a,input,select,textarea):focus-visible{outline:3px solid color-mix(in srgb,var(--primary) 55%,transparent);outline-offset:2px;border-radius:8px}
+
+  /* ---------- pasek demo ---------- */
+  .toolbar{width:min(420px,100%);display:flex;flex-direction:column;gap:8px}
+  .toolbar-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;justify-content:space-between}
+  .toolbar-label .dot{display:inline-block;width:8px;height:8px;border-radius:99px;background:var(--accent);margin-right:6px}
+  .reset-link{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+  .switcher{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+  .chip-member{display:flex;align-items:center;gap:6px;padding:6px 12px 6px 7px;border-radius:999px;background:var(--surface);border:2px solid var(--line);font-weight:700;font-size:13px;white-space:nowrap;color:var(--ink)}
+  .chip-member .em{font-size:17px}
+  .chip-member.active{border-color:var(--primary);background:var(--primary);color:var(--primary-ink)}
+
+  /* ---------- rama aplikacji ---------- */
+  .frame{width:min(420px,100%);flex:1;min-height:560px;display:flex}
+  .app{
+    position:relative;flex:1;display:flex;flex-direction:column;min-height:0;
+    background:var(--bg);border-radius:26px;overflow:hidden;box-shadow:var(--frame-shadow);
+  }
+  @media (max-width:479px){
+    body{padding:10px 0 0;gap:8px}
+    .toolbar{padding:0 12px}
+    .frame{min-height:72dvh}
+    .app{border-radius:22px 22px 0 0}
+  }
+  .app-header{background:var(--primary);color:var(--primary-ink);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none}
+  .app-header .eyebrow{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;opacity:.75}
+  .app-header .fam{font-weight:800;font-size:16px;line-height:1.25}
+  .who{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600}
+  .who .avatar{background:rgba(255,255,255,.22)}
+
+  .screen{flex:1;overflow-y:auto;padding:14px 14px 20px;display:flex;flex-direction:column;gap:12px;scrollbar-width:thin}
+
+  /* ---------- nawigacja dolna ---------- */
+  .tabbar{flex:none;display:flex;border-top:1px solid var(--line);background:var(--surface)}
+  .tab{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0 10px;font-size:11px;font-weight:600;color:var(--muted)}
+  .tab .em{font-size:20px;line-height:1}
+  .tab.active{color:var(--primary)}
+  .tab .badge{position:absolute;top:4px;right:50%;transform:translateX(16px);min-width:16px;height:16px;border-radius:99px;background:var(--bad);color:#fff;font-size:10px;font-weight:800;line-height:16px;padding:0 4px;text-align:center}
+
+  /* ---------- klocki ---------- */
+  .card{background:var(--surface);border-radius:18px;padding:14px;box-shadow:var(--shadow)}
+  .card.dim{opacity:.65}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .row{display:flex;align-items:center;gap:10px}
+  .grow{flex:1;min-width:0}
+  .h1{font-size:19px;font-weight:800;color:var(--ink);margin:0}
+  .h2{font-size:15px;font-weight:800;margin:0}
+  .sub{color:var(--muted);font-size:13px}
+  .tiny{color:var(--muted);font-size:12px}
+  .sect{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:2px 4px 0}
+  .avatar{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;background:var(--primary-soft);flex:none}
+  .avatar.sm{width:30px;height:30px;font-size:16px}
+  .avatar.md{width:40px;height:40px;font-size:21px}
+  .avatar.lg{width:54px;height:54px;font-size:29px}
+  .pts{display:inline-flex;align-items:center;border-radius:999px;background:var(--accent-soft);color:var(--accent);padding:3px 10px;font-size:13px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .btn{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;border-radius:16px;padding:13px 16px;font-weight:800;font-size:15px;transition:transform .06s ease}
+  @media (prefers-reduced-motion: reduce){.btn{transition:none}}
+  .btn:active{transform:scale(.98)}
+  .btn[disabled]{opacity:.5;pointer-events:none}
+  .btn-primary{background:var(--primary);color:var(--primary-ink)}
+  .btn-primary:active{background:var(--primary-press)}
+  .btn-secondary{background:var(--surface);color:var(--primary);border:2px solid var(--line)}
+  .btn-good{background:var(--good-strong);color:#fff}
+  .btn-bad{background:var(--surface);color:var(--bad);border:2px solid var(--bad-soft)}
+  .btn-slim{padding:10px 14px;font-size:14px;border-radius:14px}
+  .link-btn{font-weight:700;color:var(--primary);font-size:13px}
+  .seg{display:flex;background:var(--primary-soft);border-radius:16px;padding:4px;gap:4px}
+  .seg button{flex:1;border-radius:12px;padding:8px 4px;font-weight:800;font-size:13px;color:var(--primary)}
+  .seg button.on{background:var(--surface);box-shadow:var(--shadow)}
+  .check{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);padding:0 4px}
+  .check input{width:16px;height:16px;accent-color:var(--primary)}
+  .input,select.input,textarea.input{width:100%;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;font-size:15px}
+  .input:focus{border-color:var(--primary);outline:none}
+  .label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 4px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .status-ok{color:var(--good);font-size:12px;font-weight:700}
+  .status-wait{color:var(--warn);font-size:12px;font-weight:700}
+  .note{border-radius:14px;padding:10px 12px;font-size:12.5px;background:var(--surface-2);color:var(--ink)}
+  .box-ok{border-radius:18px;padding:16px;text-align:center;background:var(--good-soft);color:var(--good);font-weight:800}
+  .box-wait{border-radius:18px;padding:16px;text-align:center;background:var(--warn-soft);color:var(--warn);font-weight:800}
+  .box-ok .big,.box-wait .big{font-size:26px;margin-bottom:2px}
+  .photo{width:100%;height:190px;object-fit:cover;border-radius:14px;display:block;background:var(--surface-2)}
+  .progress{height:12px;border-radius:99px;background:var(--primary-soft);overflow:hidden}
+  .progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .6s ease}
+  @media (prefers-reduced-motion: reduce){.progress i{transition:none}}
+  .rank-row{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:12px}
+  .rank-row.me{background:var(--surface-2)}
+  .rank-place{width:26px;text-align:center;font-size:17px;font-variant-numeric:tabular-nums}
+  .rank-pts{font-weight:800;color:var(--accent);font-variant-numeric:tabular-nums}
+  .banner{background:var(--surface);border:1.5px dashed var(--line);border-radius:16px;padding:12px 36px 12px 12px;font-size:13px;color:var(--muted);position:relative}
+  .banner b{color:var(--ink)}
+  .banner .x{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:99px;font-size:15px;color:var(--muted)}
+  .toast{position:absolute;left:14px;right:14px;bottom:70px;background:var(--ink);color:var(--bg);padding:11px 14px;border-radius:14px;font-size:13.5px;font-weight:600;text-align:center;opacity:0;pointer-events:none;transform:translateY(6px);transition:opacity .18s ease,transform .18s ease;z-index:5}
+  @media (prefers-reduced-motion: reduce){.toast{transition:none}}
+  .toast.show{opacity:1;transform:none}
+  .code-big{font-size:32px;font-weight:800;letter-spacing:.3em;color:var(--primary);text-align:center;padding-left:.3em}
+  .feed-head{display:flex;align-items:center;gap:8px;font-size:13.5px}
+  .empty{padding:8px;text-align:center;color:var(--muted);font-size:13.5px}
+</style>
+
+<div class="toolbar" id="toolbar"></div>
+<div class="frame">
+  <div class="app">
+    <header class="app-header">
+      <div>
+        <div class="eyebrow">Misja Portugalia · demo</div>
+        <div class="fam" id="famName"></div>
+      </div>
+      <div class="who" id="who"></div>
+    </header>
+    <div class="screen" id="screen"></div>
+    <nav class="tabbar" id="tabbar" aria-label="Nawigacja"></nav>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </div>
+</div>
+<input type="file" accept="image/*" capture="environment" id="photoInput" hidden>
+
+<script>
+(() => {
+'use strict';
+
+// ---------------------------------------------------------------- narzędzia
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => 'x' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+const ago = (iso) => {
+  const s = Math.max(0, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 60) return 'przed chwilą';
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + ' min temu';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + ' godz. temu';
+  const d = Math.floor(h / 24);
+  return d === 1 ? 'wczoraj' : d + ' dni temu';
+};
+
+const CATS = { jedzenie:'🍽️', 'język':'🗣️', odkrywanie:'🔎', przygoda:'🌊', odwaga:'💪', razem:'👨‍👩‍👧‍👦', inne:'⭐' };
+const catEmoji = (c) => CATS[c] || CATS.inne;
+
+// „zdjęcie" demonstracyjne rysowane na canvasie (gradient + emoji)
+function demoPhoto(emoji) {
+  const c = document.createElement('canvas');
+  c.width = 800; c.height = 520;
+  const x = c.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, 520);
+  g.addColorStop(0, '#fcd34d'); g.addColorStop(.45, '#60a5fa'); g.addColorStop(1, '#1e3a8a');
+  x.fillStyle = g; x.fillRect(0, 0, 800, 520);
+  x.strokeStyle = 'rgba(255,255,255,.5)'; x.lineWidth = 14; x.lineCap = 'round';
+  for (let i = 0; i < 2; i++) {
+    x.beginPath();
+    for (let px = -20; px <= 820; px += 4) {
+      const py = 380 + i * 70 + Math.sin(px / 55 + i) * 16;
+      px === -20 ? x.moveTo(px, py) : x.lineTo(px, py);
+    }
+    x.stroke();
+  }
+  x.font = '150px system-ui'; x.textAlign = 'center'; x.textBaseline = 'middle';
+  x.fillText(emoji, 400, 218);
+  x.font = '700 24px system-ui'; x.textAlign = 'left';
+  x.fillStyle = 'rgba(255,255,255,.9)';
+  x.fillText('zdjęcie demo', 24, 488);
+  return c.toDataURL('image/jpeg', .8);
+}
+
+function fileToDataUrl(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = () => rej(new Error('Nie udało się wczytać pliku'));
+    r.onload = () => {
+      const img = new Image();
+      img.onerror = () => rej(new Error('To nie wygląda na zdjęcie'));
+      img.onload = () => {
+        const sc = Math.min(1, 900 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', .75));
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  });
+}
+
+// ---------------------------------------------------------------- dane demo
+const KEY = 'mp-demo-v1';
+const SEED_TASKS = [
+  ['Spróbuj pastel de nata i oceń go miną', 20, 'individual', 'jedzenie', 'Kup i zjedz słynne ciastko pastel de nata. Zdjęcie z miną-oceną mile widziane!'],
+  ['Powiedz „obrigado/obrigada" przy zakupie', 15, 'individual', 'język', 'Podziękuj po portugalsku w sklepie, kawiarni albo na targu.'],
+  ['Znajdź ścianę z azulejos', 15, 'individual', 'odkrywanie', 'Wypatrz ścianę z niebieskimi kafelkami azulejos i zrób jej zdjęcie.'],
+  ['Naucz się liczyć po portugalsku do 10', 25, 'individual', 'język', 'Um, dois, três… Pokaż rodzinie, że umiesz policzyć do dziesięciu.'],
+  ['Wypatrz żółty tramwaj', 20, 'individual', 'odkrywanie', 'Znajdź słynny żółty tramwaj (w Lizbonie najlepiej nr 28) i uwiecznij go.'],
+  ['Wejdź do oceanu (choćby po kostki)', 20, 'individual', 'przygoda', 'Atlantyk bywa zimny — liczy się odwaga!'],
+  ['Kup samodzielnie owoc na targu', 30, 'individual', 'odwaga', 'Wybierz, zapytaj o cenę i zapłać — całkiem sam/sama.'],
+  ['Wspólne zdjęcie z widokiem na ocean', 30, 'family', 'razem', 'Cała rodzina w kadrze, ocean w tle.'],
+  ['Zbudujcie razem zamek z piasku', 40, 'family', 'razem', 'Wieże, fosa i brama — każdy dokłada swoją część.'],
+  ['Rodzinny spacer o zachodzie słońca', 25, 'family', 'razem', 'Wyjdźcie razem na spacer, gdy słońce chowa się w oceanie.'],
+  ['Kolacja z daniem, którego nikt nie jadł', 40, 'family', 'jedzenie', 'Zamówcie wspólnie lokalne danie, którego nikt z Was wcześniej nie próbował.'],
+  ['Turniej w grę planszową lub karcianą', 25, 'family', 'razem', 'Wieczorny turniej — zwycięzca ma prawo do fanfar.'],
+  ['Znajdźcie razem punkt widokowy (miradouro)', 30, 'family', 'odkrywanie', 'Dotrzyjcie do miradouro i policzcie z góry mosty albo czerwone dachy.'],
+];
+
+let db;
+let ui = { view: 'tasks', tab: 'individual', taskId: null, hideDone: false, editId: null, pendingPhotoTask: null };
+
+function seed() {
+  const now = Date.now();
+  const t = (i) => 't' + (i + 1);
+  const iso = (minAgo) => new Date(now - minAgo * 60000).toISOString();
+  db = {
+    currentMemberId: 'm1',
+    introDismissed: false,
+    family: { name: 'Kowalscy w Portugalii', join_code: 'DEMO24', goal_points: 500, goal_reward: 'wieczór z lodami na plaży' },
+    members: [
+      { id: 'm1', name: 'Tata', avatar: '😎', role: 'admin' },
+      { id: 'm2', name: 'Mama', avatar: '🌞', role: 'member' },
+      { id: 'm3', name: 'Ala', avatar: '🦁', role: 'member' },
+      { id: 'm4', name: 'Staś', avatar: '🚀', role: 'member' },
+    ],
+    tasks: SEED_TASKS.map((row, i) => ({
+      id: t(i), title: row[0], points: row[1], type: row[2], category: row[3], description: row[4], is_active: true,
+    })),
+    completions: [
+      { id: 'c1', task_id: 't8', member_id: 'm2', task_type: 'family', photo: demoPhoto('🏖️'), status: 'approved', approved_by: null, created_at: iso(60 * 26), resolved_at: iso(60 * 26) },
+      { id: 'c2', task_id: 't1', member_id: 'm2', task_type: 'individual', photo: demoPhoto('🍮'), status: 'approved', approved_by: null, created_at: iso(60 * 5), resolved_at: iso(60 * 5) },
+      { id: 'c3', task_id: 't6', member_id: 'm3', task_type: 'individual', photo: demoPhoto('🌊'), status: 'approved', approved_by: null, created_at: iso(60 * 3), resolved_at: iso(60 * 3) },
+      { id: 'c4', task_id: 't2', member_id: 'm1', task_type: 'individual', photo: null, status: 'approved', approved_by: 'm2', created_at: iso(60 * 2), resolved_at: iso(115) },
+      { id: 'c5', task_id: 't4', member_id: 'm4', task_type: 'individual', photo: null, status: 'pending', approved_by: null, created_at: iso(20), resolved_at: null },
+    ],
+  };
+  save();
+}
+function save() {
+  try { localStorage.setItem(KEY, JSON.stringify(db)); }
+  catch { toast('Pamięć demo pełna — nowe zdjęcia znikną po odświeżeniu'); }
+}
+function load() {
+  try { db = JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { db = null; }
+  if (!db || !Array.isArray(db.members)) seed();
+}
+
+// ---------------------------------------------------------------- domena (te same reguły co w aplikacji)
+const me = () => db.members.find((m) => m.id === db.currentMemberId);
+const memberById = (id) => db.members.find((m) => m.id === id);
+const taskById = (id) => db.tasks.find((t) => t.id === id);
+const activeCompletion = (task, memberId) =>
+  db.completions.find((c) => c.task_id === task.id && c.status !== 'rejected' && (task.type === 'family' || c.member_id === memberId));
+const pendingOthers = () => db.completions.filter((c) => c.status === 'pending' && c.member_id !== db.currentMemberId);
+
+function scores() {
+  const pts = new Map(db.members.map((m) => [m.id, 0]));
+  for (const c of db.completions) {
+    if (c.status !== 'approved') continue;
+    const t = taskById(c.task_id);
+    if (!t) continue;
+    if (t.type === 'individual') pts.set(c.member_id, (pts.get(c.member_id) || 0) + t.points);
+    else db.members.forEach((m) => pts.set(m.id, (pts.get(m.id) || 0) + t.points));
+  }
+  const rows = db.members
+    .map((m) => ({ m, pts: pts.get(m.id) || 0 }))
+    .sort((a, b) => b.pts - a.pts || a.m.name.localeCompare(b.m.name, 'pl'));
+  return { rows, total: rows.reduce((s, r) => s + r.pts, 0) };
+}
+
+function submit(taskId, photo) {
+  const t = taskById(taskId);
+  if (!t || !t.is_active) return toast('To zadanie jest wyłączone');
+  if (activeCompletion(t, db.currentMemberId)) return toast('To zadanie ma już aktywne zgłoszenie');
+  const now = new Date().toISOString();
+  db.completions.unshift({
+    id: uid(), task_id: t.id, member_id: db.currentMemberId, task_type: t.type,
+    photo: photo || null, status: photo ? 'approved' : 'pending', approved_by: null,
+    created_at: now, resolved_at: photo ? now : null,
+  });
+  save();
+  toast(photo
+    ? (t.type === 'family' ? '🎉 Zaliczone! +' + t.points + ' pkt dla całej rodziny' : '🎉 Zaliczone! +' + t.points + ' pkt')
+    : '⏳ Zgłoszone — poproś kogoś o potwierdzenie');
+  render();
+}
+function review(id, approve) {
+  const c = db.completions.find((k) => k.id === id);
+  if (!c || c.status !== 'pending') return;
+  if (c.member_id === db.currentMemberId) return toast('Nie możesz potwierdzić własnego zgłoszenia');
+  c.status = approve ? 'approved' : 'rejected';
+  c.approved_by = approve ? db.currentMemberId : null;
+  c.resolved_at = new Date().toISOString();
+  save();
+  const t = taskById(c.task_id), a = memberById(c.member_id);
+  toast(approve ? '✅ +' + (t ? t.points : 0) + ' pkt dla: ' + (t && t.type === 'family' ? 'cała rodzina' : (a ? a.name : '?')) : 'Zgłoszenie odrzucone');
+  render();
+}
+function revoke(id) {
+  if (me().role !== 'admin') return;
+  const c = db.completions.find((k) => k.id === id);
+  if (!c || c.status !== 'approved') return;
+  c.status = 'rejected'; c.resolved_at = new Date().toISOString();
+  save(); toast('Zaliczenie cofnięte — punkty odjęte'); render();
+}
+function cancel(id) {
+  db.completions = db.completions.filter((c) => !(c.id === id && c.member_id === db.currentMemberId && c.status === 'pending'));
+  save(); render();
+}
+
+// ---------------------------------------------------------------- widoki
+let toastTimer;
+function toast(msg) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function statusBadge(c) {
+  if (!c) return '';
+  return c.status === 'approved'
+    ? '<span class="status-ok">✅ Zaliczone</span>'
+    : '<span class="status-wait">⏳ Czeka na potwierdzenie</span>';
+}
+
+function vTasks() {
+  const my = scores().rows.find((r) => r.m.id === db.currentMemberId);
+  const withSt = db.tasks.filter((t) => t.is_active).map((t) => ({ t, c: activeCompletion(t, db.currentMemberId) }));
+  const cnt = (type) => {
+    const of = withSt.filter((x) => x.t.type === type);
+    return of.filter((x) => x.c && x.c.status === 'approved').length + '/' + of.length;
+  };
+  const visible = withSt.filter((x) => x.t.type === ui.tab).filter((x) => !ui.hideDone || !(x.c && x.c.status === 'approved'));
+  const intro = db.introDismissed ? '' :
+    '<div class="banner">👋 <b>To klikalne demo</b> — wszystko dzieje się lokalnie w Twojej przeglądarce, bez prawdziwego backendu. ' +
+    'Przełączaj profile w pasku nad aplikacją, żeby np. potwierdzić misję zgłoszoną przez kogoś innego. ' +
+    'Pełna wersja łączy telefony całej rodziny przez Supabase.' +
+    '<button class="x" data-action="dismiss-intro" aria-label="Zamknij">✕</button></div>';
+  return intro +
+    '<div class="card row">' +
+      '<span class="avatar lg">' + esc(me().avatar) + '</span>' +
+      '<div class="grow"><div class="h2" style="color:var(--primary)">Cześć, ' + esc(me().name) + '!</div>' +
+      '<div class="sub">Masz <b style="color:var(--accent)">' + (my ? my.pts : 0) + ' pkt</b> — tak trzymaj! 💪</div></div>' +
+    '</div>' +
+    '<div class="seg" role="tablist">' +
+      '<button role="tab" aria-selected="' + (ui.tab === 'individual') + '" class="' + (ui.tab === 'individual' ? 'on' : '') + '" data-action="tab" data-tab="individual">🧍 Indywidualne · ' + cnt('individual') + '</button>' +
+      '<button role="tab" aria-selected="' + (ui.tab === 'family') + '" class="' + (ui.tab === 'family' ? 'on' : '') + '" data-action="tab" data-tab="family">👨‍👩‍👧‍👦 Rodzinne · ' + cnt('family') + '</button>' +
+    '</div>' +
+    '<label class="check"><input type="checkbox" id="hideDone" ' + (ui.hideDone ? 'checked' : '') + '> Ukryj zaliczone</label>' +
+    (visible.length === 0 ? '<div class="card empty">Nic tu nie ma. Wszystko zaliczone? 🎉</div>' : '') +
+    visible.map(({ t, c }) =>
+      '<button class="card row' + (c && c.status === 'approved' ? ' dim' : '') + '" style="text-align:left" data-action="open" data-id="' + t.id + '">' +
+        '<span style="font-size:24px">' + catEmoji(t.category) + '</span>' +
+        '<div class="grow"><div style="font-weight:700;line-height:1.3">' + esc(t.title) + '</div>' + statusBadge(c) + '</div>' +
+        '<span class="pts">' + t.points + ' pkt</span>' +
+      '</button>'
+    ).join('');
+}
+
+function vTask() {
+  const t = taskById(ui.taskId);
+  if (!t) return '<div class="card empty">Nie znaleziono zadania. <button class="link-btn" data-action="nav" data-view="tasks">Wróć</button></div>';
+  const c = activeCompletion(t, db.currentMemberId);
+  const hist = db.completions.filter((k) => k.task_id === t.id)
+    .slice().sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const LBL = { pending: '⏳ czeka', approved: '✅ zaliczone', rejected: '❌ odrzucone' };
+  let action = '';
+  if (!c) {
+    action =
+      '<div class="stack">' +
+        '<button class="btn btn-primary" data-action="photo" data-id="' + t.id + '">📸 Wykonane! Dodaj zdjęcie</button>' +
+        '<div class="tiny" style="text-align:center">Zdjęcie to dowód — misja zaliczy się od razu. ' +
+        '<button class="link-btn" data-action="sample" data-id="' + t.id + '">Wstaw przykładowe (demo)</button></div>' +
+        '<button class="btn btn-secondary" data-action="nophoto" data-id="' + t.id + '">🙋 Zgłoś bez zdjęcia</button>' +
+        '<div class="tiny" style="text-align:center">Ktoś z rodziny będzie musiał potwierdzić wykonanie.</div>' +
+      '</div>';
+  } else if (c.status === 'approved') {
+    action = '<div class="box-ok"><div class="big">🎉</div>Misja zaliczona!' +
+      (t.type === 'family' ? '<div class="sub" style="color:inherit;font-weight:600">Punkty powędrowały do całej rodziny.</div>' : '') + '</div>';
+  } else {
+    const mine = c.member_id === db.currentMemberId;
+    action = '<div class="stack">' +
+      '<div class="box-wait"><div class="big">⏳</div>Zgłoszenie czeka na potwierdzenie' +
+      (mine ? '' : '<div class="sub" style="color:inherit;font-weight:600">zgłosił(a): ' + esc(memberById(c.member_id)?.name || '?') + '</div>') + '</div>' +
+      (mine
+        ? '<button class="btn btn-secondary" data-action="cancel" data-id="' + c.id + '">Anuluj zgłoszenie</button>'
+        : '<button class="btn btn-secondary" data-action="nav" data-view="approvals">Możesz je potwierdzić →</button>') +
+      '</div>';
+  }
+  return '<button class="link-btn" style="align-self:flex-start" data-action="nav" data-view="tasks">← Wszystkie misje</button>' +
+    '<div class="card stack">' +
+      '<div class="row" style="align-items:flex-start">' +
+        '<span style="font-size:30px">' + catEmoji(t.category) + '</span>' +
+        '<div class="grow"><h1 class="h1" style="color:var(--primary);font-size:17px">' + esc(t.title) + '</h1>' +
+        '<div class="row" style="margin-top:4px;gap:8px"><span class="pts">' + t.points + ' pkt</span>' +
+        '<span class="tiny">' + (t.type === 'family' ? '👨‍👩‍👧‍👦 misja rodzinna' : '🧍 misja indywidualna') + '</span></div></div>' +
+      '</div>' +
+      (t.description ? '<div class="sub">' + esc(t.description) + '</div>' : '') +
+      (t.type === 'family' ? '<div class="note">Misję rodzinną zgłasza jedna osoba w imieniu wszystkich — punkty dostaje cała rodzina.</div>' : '') +
+    '</div>' +
+    action +
+    (hist.length ? '<div class="sect">Zgłoszenia</div>' + hist.map((k) => {
+      const a = memberById(k.member_id);
+      return '<div class="card stack">' +
+        '<div class="row" style="font-size:13.5px"><span class="avatar sm">' + esc(a?.avatar || '🙂') + '</span>' +
+        '<b>' + esc(a?.name || '?') + '</b><span class="tiny">· ' + ago(k.created_at) + '</span>' +
+        '<span style="margin-left:auto;font-size:12.5px;font-weight:700">' + LBL[k.status] + '</span></div>' +
+        (k.photo ? '<img class="photo" src="' + k.photo + '" alt="Zdjęcie z misji">' : '') +
+      '</div>';
+    }).join('') : '');
+}
+
+function vApprovals() {
+  const toReview = pendingOthers();
+  const mine = db.completions.filter((c) => c.status === 'pending' && c.member_id === db.currentMemberId);
+  return '<h1 class="h1" style="padding:0 4px">Do potwierdzenia</h1>' +
+    (toReview.length === 0
+      ? '<div class="card empty">Nic do potwierdzenia. 🎉<div class="tiny" style="margin-top:4px">Trafią tu zgłoszenia bez zdjęcia od reszty rodziny.<br>Podpowiedź: przełącz profil u góry i zgłoś coś „bez zdjęcia".</div></div>'
+      : toReview.map((c) => {
+          const t = taskById(c.task_id), a = memberById(c.member_id);
+          return '<div class="card stack">' +
+            '<div class="row" style="font-size:13.5px"><span class="avatar sm">' + esc(a?.avatar || '🙂') + '</span>' +
+            '<span><b>' + esc(a?.name || '?') + '</b> zgłasza wykonanie:</span>' +
+            '<span class="tiny" style="margin-left:auto">' + ago(c.created_at) + '</span></div>' +
+            '<div class="row"><span style="font-size:24px">' + catEmoji(t?.category) + '</span>' +
+            '<b class="grow" style="line-height:1.3">' + esc(t?.title || 'Usunięte zadanie') + '</b>' +
+            (t ? '<span class="pts">' + t.points + ' pkt</span>' : '') + '</div>' +
+            (c.task_type === 'family' ? '<div class="tiny">👨‍👩‍👧‍👦 Misja rodzinna — punkty dostanie każdy.</div>' : '') +
+            '<div class="row"><button class="btn btn-good btn-slim" style="flex:1" data-action="approve" data-id="' + c.id + '">✅ Potwierdzam</button>' +
+            '<button class="btn btn-bad btn-slim" style="flex:1" data-action="reject" data-id="' + c.id + '">❌ Odrzucam</button></div>' +
+          '</div>';
+        }).join('')) +
+    (mine.length
+      ? '<div class="sect">Twoje zgłoszenia czekają na innych</div>' + mine.map((c) => {
+          const t = taskById(c.task_id);
+          return '<div class="card row"><span style="font-size:20px">⏳</span>' +
+            '<span class="grow" style="font-size:14px;font-weight:600">' + esc(t?.title || '?') + '</span>' +
+            '<button class="link-btn" style="color:var(--bad)" data-action="cancel" data-id="' + c.id + '">Anuluj</button></div>';
+        }).join('')
+      : '');
+}
+
+function vScores() {
+  const sc = scores();
+  const goal = db.family.goal_points;
+  const pct = goal ? Math.min(100, Math.round(sc.total / goal * 100)) : 0;
+  const medals = ['🥇', '🥈', '🥉'];
+  const feed = db.completions.filter((c) => c.status === 'approved')
+    .slice().sort((a, b) => new Date(b.resolved_at || b.created_at) - new Date(a.resolved_at || a.created_at)).slice(0, 30);
+  const admin = me().role === 'admin';
+  return (goal ?
+    '<div class="card stack">' +
+      '<div class="row"><h2 class="h2" style="color:var(--primary)">Cel wyprawy 🎯</h2>' +
+      '<b style="margin-left:auto;font-variant-numeric:tabular-nums;color:var(--primary)">' + sc.total + ' / ' + goal + ' pkt</b></div>' +
+      '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
+      (db.family.goal_reward ? '<div class="sub">Nagroda: <b>' + esc(db.family.goal_reward) + '</b></div>' : '') +
+      (sc.total >= goal ? '<div class="box-ok" style="padding:10px">🎉 Cel osiągnięty! Czas na nagrodę!</div>' : '') +
+    '</div>' : '') +
+    '<div class="card stack" style="gap:2px"><h2 class="h2" style="color:var(--primary);margin-bottom:8px">Ranking 🏆</h2>' +
+    sc.rows.map((r, i) =>
+      '<div class="rank-row' + (r.m.id === db.currentMemberId ? ' me' : '') + '">' +
+        '<span class="rank-place">' + (medals[i] || (i + 1) + '.') + '</span>' +
+        '<span class="avatar sm">' + esc(r.m.avatar) + '</span>' +
+        '<b class="grow">' + esc(r.m.name) + (r.m.id === db.currentMemberId ? ' <span class="tiny" style="font-weight:600">(Ty)</span>' : '') + '</b>' +
+        '<span class="rank-pts">' + r.pts + ' pkt</span>' +
+      '</div>').join('') +
+    '</div>' +
+    '<div class="sect">Ostatnie dokonania 📸</div>' +
+    (feed.length === 0 ? '<div class="card empty">Jeszcze nic tu nie ma — czas na pierwszą misję!</div>' : '') +
+    feed.map((c) => {
+      const t = taskById(c.task_id), a = memberById(c.member_id);
+      return '<div class="card stack">' +
+        '<div class="feed-head"><span class="avatar sm">' + esc(a?.avatar || '🙂') + '</span>' +
+        '<div class="grow"><b>' + esc(a?.name || '?') + '</b>' +
+        (c.task_type === 'family' ? ' <span class="tiny">(misja rodzinna)</span>' : '') +
+        '<div class="sub" style="font-size:13px">' + esc(t?.title || 'Usunięte zadanie') + '</div></div>' +
+        (t ? '<span class="pts">+' + t.points + ' pkt</span>' : '') + '</div>' +
+        (c.photo ? '<img class="photo" src="' + c.photo + '" alt="Zdjęcie z misji">' : '') +
+        '<div class="row tiny"><span>' + ago(c.resolved_at || c.created_at) + '</span>' +
+        (admin ? '<button class="link-btn" style="margin-left:auto;color:var(--bad);font-size:12px" data-action="revoke" data-id="' + c.id + '">Cofnij zaliczenie</button>' : '') +
+        '</div></div>';
+    }).join('');
+}
+
+function vAdmin() {
+  const t = db.tasks;
+  return '<h1 class="h1" style="padding:0 4px">Panel admina ⚙️</h1>' +
+    '<div class="card stack" style="text-align:center">' +
+      '<div class="sub">Kod dołączenia do wyprawy</div>' +
+      '<div class="code-big">' + esc(db.family.join_code) + '</div>' +
+      '<div class="tiny">W prawdziwej aplikacji rodzina wpisuje ten kod na swoich telefonach.<br>W demo zamiast tego przełączasz profile w pasku u góry.</div>' +
+    '</div>' +
+    '<form class="card stack" data-form="goal">' +
+      '<h2 class="h2" style="color:var(--primary)">Cel wspólny 🎯</h2>' +
+      '<div class="grid2">' +
+        '<div><label class="label" for="gPts">Próg punktów</label><input class="input" id="gPts" inputmode="numeric" value="' + (db.family.goal_points || '') + '" placeholder="np. 500"></div>' +
+        '<div><label class="label" for="gRew">Nagroda</label><input class="input" id="gRew" value="' + esc(db.family.goal_reward || '') + '" placeholder="np. wieczór z lodami"></div>' +
+      '</div>' +
+      '<div class="tiny">Do celu liczy się suma punktów wszystkich członków.</div>' +
+      '<button class="btn btn-primary btn-slim">Zapisz cel</button>' +
+    '</form>' +
+    '<form class="card stack" data-form="newtask">' +
+      '<h2 class="h2" style="color:var(--primary)">Nowa misja ➕</h2>' +
+      '<input class="input" id="nTitle" placeholder="np. Zjedz sardynkę z grilla" maxlength="120">' +
+      '<div class="grid2">' +
+        '<select class="input" id="nType"><option value="individual">🧍 indywidualna</option><option value="family">👨‍👩‍👧‍👦 rodzinna</option></select>' +
+        '<input class="input" id="nPts" inputmode="numeric" value="20" placeholder="punkty">' +
+      '</div>' +
+      '<select class="input" id="nCat">' + Object.keys(CATS).map((c) => '<option value="' + c + '">' + CATS[c] + ' ' + c + '</option>').join('') + '</select>' +
+      '<textarea class="input" id="nDesc" rows="2" placeholder="opis (opcjonalny)"></textarea>' +
+      '<button class="btn btn-primary btn-slim">Dodaj misję</button>' +
+    '</form>' +
+    '<div class="sect">Wszystkie misje (' + t.length + ')</div>' +
+    t.map((task) => {
+      const editing = ui.editId === task.id;
+      return '<div class="card' + (task.is_active ? '' : ' dim') + '">' +
+        '<div class="row"><span style="font-size:20px">' + catEmoji(task.category) + '</span>' +
+        '<div class="grow"><div style="font-weight:700;line-height:1.3">' + esc(task.title) + '</div>' +
+        '<div class="tiny">' + (task.type === 'family' ? '👨‍👩‍👧‍👦 rodzinna' : '🧍 indywidualna') + (task.is_active ? '' : ' · wyłączona') + '</div></div>' +
+        '<span class="pts">' + task.points + ' pkt</span></div>' +
+        '<div class="row" style="margin-top:8px;gap:16px">' +
+          '<button class="link-btn" data-action="edit" data-id="' + task.id + '">' + (editing ? 'Zwiń' : 'Edytuj') + '</button>' +
+          '<button class="link-btn" style="color:' + (task.is_active ? 'var(--muted)' : 'var(--good)') + '" data-action="toggle-task" data-id="' + task.id + '">' + (task.is_active ? 'Wyłącz' : 'Włącz') + '</button>' +
+        '</div>' +
+        (editing ?
+          '<form class="stack" style="margin-top:10px;border-top:1px solid var(--line);padding-top:10px" data-form="edittask" data-id="' + task.id + '">' +
+            '<input class="input" name="title" value="' + esc(task.title) + '" maxlength="120">' +
+            '<div class="grid2"><input class="input" name="points" inputmode="numeric" value="' + task.points + '">' +
+            '<select class="input" name="category">' + Object.keys(CATS).map((c) => '<option value="' + c + '"' + (task.category === c ? ' selected' : '') + '>' + CATS[c] + ' ' + c + '</option>').join('') + '</select></div>' +
+            '<textarea class="input" name="description" rows="2">' + esc(task.description || '') + '</textarea>' +
+            '<button class="btn btn-primary btn-slim">Zapisz zmiany</button>' +
+          '</form>' : '') +
+      '</div>';
+    }).join('') +
+    '<div class="card stack">' +
+      '<h2 class="h2" style="color:var(--bad)">Strefa niebezpieczna</h2>' +
+      '<div class="tiny">W prawdziwej aplikacji: trwałe usunięcie wyprawy z misjami, punktami i zdjęciami. W demo: powrót do stanu początkowego.</div>' +
+      '<button class="btn btn-bad btn-slim" data-action="reset">Zresetuj demo</button>' +
+    '</div>';
+}
+
+// ---------------------------------------------------------------- rendering
+function render() {
+  const cur = me();
+  // pasek demo
+  $('#toolbar').innerHTML =
+    '<div class="toolbar-label"><span><span class="dot"></span>Demo — dane tylko w tej przeglądarce</span>' +
+    '<button class="reset-link" data-action="reset">zresetuj</button></div>' +
+    '<div class="switcher" role="group" aria-label="Przełącz profil">' +
+    db.members.map((m) =>
+      '<button class="chip-member' + (m.id === cur.id ? ' active' : '') + '" data-action="switch" data-id="' + m.id + '">' +
+      '<span class="em">' + esc(m.avatar) + '</span>' + esc(m.name) + (m.role === 'admin' ? ' ⚙️' : '') + '</button>').join('') +
+    '</div>';
+  $('#famName').textContent = db.family.name;
+  $('#who').innerHTML = '<span>' + esc(cur.name) + '</span><span class="avatar sm">' + esc(cur.avatar) + '</span>';
+
+  const views = { tasks: vTasks, task: vTask, approvals: vApprovals, scores: vScores, admin: vAdmin };
+  $('#screen').innerHTML = (views[ui.view] || vTasks)();
+  $('#screen').scrollTop = 0;
+
+  const badge = pendingOthers().length;
+  const tabs = [
+    ['tasks', '🧭', 'Zadania'],
+    ['approvals', '✅', 'Potwierdź'],
+    ['scores', '🏆', 'Wyniki'],
+  ];
+  if (cur.role === 'admin') tabs.push(['admin', '⚙️', 'Admin']);
+  $('#tabbar').innerHTML = tabs.map(([v, em, label]) =>
+    '<button class="tab' + ((ui.view === v || (v === 'tasks' && ui.view === 'task')) ? ' active' : '') + '" data-action="nav" data-view="' + v + '">' +
+    '<span class="em">' + em + '</span>' + label +
+    (v === 'approvals' && badge ? '<span class="badge">' + badge + '</span>' : '') +
+    '</button>').join('');
+}
+
+// ---------------------------------------------------------------- zdarzenia
+document.addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const id = el.dataset.id;
+  switch (el.dataset.action) {
+    case 'nav': ui.view = el.dataset.view; ui.editId = null; render(); break;
+    case 'open': ui.view = 'task'; ui.taskId = id; render(); break;
+    case 'tab': ui.tab = el.dataset.tab; render(); break;
+    case 'switch':
+      db.currentMemberId = id;
+      if (ui.view === 'admin' && me().role !== 'admin') ui.view = 'tasks';
+      save(); render();
+      toast('Patrzysz teraz jako ' + me().name + ' ' + me().avatar);
+      break;
+    case 'photo': ui.pendingPhotoTask = id; $('#photoInput').click(); break;
+    case 'sample': { const t = taskById(id); submit(id, demoPhoto(catEmoji(t && t.category))); break; }
+    case 'nophoto': submit(id, null); break;
+    case 'cancel': cancel(id); break;
+    case 'approve': review(id, true); break;
+    case 'reject': review(id, false); break;
+    case 'revoke': if (confirm('Cofnąć zaliczenie tej misji? Punkty zostaną odjęte.')) revoke(id); break;
+    case 'edit': ui.editId = ui.editId === id ? null : id; render(); break;
+    case 'toggle-task': { const t = taskById(id); if (t) { t.is_active = !t.is_active; save(); render(); } break; }
+    case 'dismiss-intro': db.introDismissed = true; save(); render(); break;
+    case 'reset':
+      if (confirm('Przywrócić demo do stanu początkowego?')) {
+        localStorage.removeItem(KEY); ui = { view: 'tasks', tab: 'individual', taskId: null, hideDone: false, editId: null, pendingPhotoTask: null };
+        seed(); render(); toast('Demo zresetowane 🔄');
+      }
+      break;
+  }
+});
+
+document.addEventListener('change', (e) => {
+  if (e.target.id === 'hideDone') { ui.hideDone = e.target.checked; render(); }
+});
+
+document.addEventListener('submit', (e) => {
+  const f = e.target.closest('form[data-form]');
+  if (!f) return;
+  e.preventDefault();
+  if (f.dataset.form === 'goal') {
+    const pts = parseInt(f.querySelector('#gPts').value.replace(/\D/g, ''), 10);
+    db.family.goal_points = Number.isFinite(pts) && pts > 0 ? pts : null;
+    db.family.goal_reward = f.querySelector('#gRew').value.trim() || null;
+    save(); render(); toast('Cel zapisany ✅');
+  } else if (f.dataset.form === 'newtask') {
+    const title = f.querySelector('#nTitle').value.trim();
+    if (!title) return toast('Podaj nazwę misji');
+    const pts = parseInt(f.querySelector('#nPts').value.replace(/\D/g, ''), 10);
+    db.tasks.push({
+      id: uid(), title, points: Number.isFinite(pts) && pts > 0 ? pts : 10,
+      type: f.querySelector('#nType').value, category: f.querySelector('#nCat').value,
+      description: f.querySelector('#nDesc').value.trim() || null, is_active: true,
+    });
+    save(); render(); toast('Misja dodana ➕');
+  } else if (f.dataset.form === 'edittask') {
+    const t = taskById(f.dataset.id);
+    if (!t) return;
+    const title = f.querySelector('[name=title]').value.trim();
+    const pts = parseInt(f.querySelector('[name=points]').value.replace(/\D/g, ''), 10);
+    if (title) t.title = title;
+    if (Number.isFinite(pts) && pts > 0) t.points = pts;
+    t.category = f.querySelector('[name=category]').value;
+    t.description = f.querySelector('[name=description]').value.trim() || null;
+    ui.editId = null; save(); render(); toast('Zapisano zmiany ✅');
+  }
+});
+
+$('#photoInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if (!file || !ui.pendingPhotoTask) return;
+  toast('Przetwarzam zdjęcie…');
+  try {
+    const url = await fileToDataUrl(file);
+    submit(ui.pendingPhotoTask, url);
+  } catch (err) {
+    toast(err.message || 'Nie udało się dodać zdjęcia');
+  }
+  ui.pendingPhotoTask = null;
+});
+
+// start
+load();
+render();
+})();
+</script>

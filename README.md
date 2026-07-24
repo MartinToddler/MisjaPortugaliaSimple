@@ -7,6 +7,10 @@ na swoim telefonie prosto z przeglądarki, bez sklepów z aplikacjami.
 
 Pełny plan produktu i roadmapa: [PLAN.md](PLAN.md).
 
+> **Chcesz poklikać bez konfigurowania backendu?** Otwórz [`demo/index.html`](demo/index.html)
+> w przeglądarce — to samodzielne demo z zasymulowanym backendem (dane lokalne
+> w przeglądarce) i przełącznikiem profili, wiernie odtwarzające ekrany i reguły gry.
+
 ## Jak to działa (zasady gry)
 
 1. **Rodzic (admin) zakłada wyprawę** i dostaje 6-znakowy kod dołączenia.
